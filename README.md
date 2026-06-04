@@ -1,15 +1,114 @@
 # IRR Analytics Terminal
 
 [![CI](https://github.com/Raphael-Azerad/irr-analytics-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/Raphael-Azerad/irr-analytics-terminal/actions/workflows/ci.yml)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/downloads/release/python-3110/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**IRR Analytics Terminal** is a professional capital budgeting and investment decision platform built with Python and Streamlit. It combines a reusable corporate finance calculation engine with an institutional-style interface for evaluating projects, acquisitions, real estate investments, and sponsor returns.
+IRR Analytics Terminal is a Streamlit app for evaluating investment cash flows. It calculates IRR, NPV, MIRR, payback period, discounted payback, and profitability index, then visualizes cash-flow timing, NPV profiles, scenarios, and project comparisons.
 
-This is not a single-metric IRR calculator. The platform is designed around the way finance professionals actually review capital deployment: value creation, return thresholds, payback, downside cases, sensitivity to assumptions, and the probability of achieving an acceptable outcome.
+## Overview
 
-## Quick Start
+The project is built for capital-budgeting analysis rather than a single headline return. It puts IRR beside NPV, MIRR, liquidity measures, scenario outcomes, sensitivity tables, and a balanced multi-project ranking.
+
+## Live Demo
+
+Live demo: coming soon.
+
+## Key Findings From Default Example
+
+The default Corporate Expansion Project assumes a `$10,000,000` initial investment, six years of forecast inflows, and a `10%` hurdle rate.
+
+| Metric | Result |
+| --- | ---: |
+| Initial investment | $10,000,000 |
+| Forecast horizon | 6 years |
+| Hurdle rate | 10.00% |
+| IRR | 14.96% |
+| MIRR | 12.94% |
+| NPV | $1,713,138 |
+| Payback period | 4.12 years |
+| Discounted payback period | 5.20 years |
+| Profitability index | 1.17x |
+| Decision status | Passes hurdle rate |
+
+The project clears the hurdle rate and creates positive value at the selected discount rate. The positive NPV is the stronger evidence of value creation; IRR is useful as a return benchmark, but it should not be viewed alone.
+
+## Screenshots
+
+![Dashboard overview](screenshots/dashboard-overview.png)
+![NPV profile](screenshots/npv-profile.png)
+![Scenario analysis](screenshots/scenario-analysis.png)
+![Project comparison](screenshots/project-comparison.png)
+
+## Features
+
+- Executive metric dashboard with neutral decision language
+- Manual cash-flow editing and built-in project examples
+- CSV and Excel upload with flexible column names
+- IRR, NPV, MIRR, payback, discounted payback, and profitability index
+- Cash-flow timeline and cumulative cash-flow charts
+- NPV profile from 0% to 30%
+- Bear, base, and bull scenarios with probability-weighted NPV
+- Discount-rate and cash-flow-growth sensitivity heatmap
+- Balanced multi-project comparison
+- Formatted eight-sheet Excel export
+
+## Methodology
+
+The application treats NPV as the primary measure of absolute value creation and uses IRR as a return benchmark. It identifies non-conventional cash-flow patterns and warns when multiple IRRs may exist.
+
+## IRR
+
+Internal Rate of Return is the discount rate that sets project NPV equal to zero. A valid IRR can be compared with a hurdle rate, but it does not measure the dollar value created.
+
+## NPV
+
+Net Present Value discounts every project cash flow at the required rate of return. Positive NPV indicates expected value creation after accounting for risk and the time value of money.
+
+## MIRR
+
+Modified Internal Rate of Return applies explicit financing and reinvestment rates. It addresses some of the reinvestment assumptions embedded in standard IRR.
+
+## Why IRR Can Be Misleading
+
+- Non-conventional cash flows can produce multiple IRRs.
+- All-positive or all-negative cash flows have no meaningful IRR.
+- IRR can favor smaller or faster-paying projects.
+- IRR can mis-rank projects with different scale or timing.
+- NPV is usually better for measuring absolute value creation.
+
+## Scenario Analysis
+
+The default scenario model applies:
+
+- Bear case: future inflows down 15%, discount rate up 2%
+- Base case: original cash flows
+- Bull case: future inflows up 15%, discount rate down 1%
+
+Scenario probabilities are normalized when they do not total 100%.
+
+## Sensitivity Analysis
+
+The sensitivity view shows how NPV changes across discount rates and cash-flow growth assumptions. This makes the assumptions behind the base case visible.
+
+## Multi-Project Comparison
+
+Projects are not ranked by IRR alone. The scoring system considers positive NPV, IRR versus hurdle rate, discounted payback, profitability index, and scale of value creation.
+
+## Excel Export
+
+The formatted workbook includes:
+
+- Summary
+- Cash Flows
+- Metrics
+- NPV Profile
+- Scenario Analysis
+- Sensitivity Analysis
+- Multi-Project Comparison
+- Assumptions
+
+## Installation
 
 ```bash
 git clone https://github.com/Raphael-Azerad/irr-analytics-terminal.git
@@ -17,214 +116,61 @@ cd irr-analytics-terminal
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-streamlit run app.py
 ```
 
-Sample upload files are available in the [`examples/`](examples/) directory.
-
-## Overview
-
-IRR Analytics Terminal helps answer a practical investment committee question:
-
-> Is this investment worth pursuing, and how confident should we be in that conclusion?
-
-The application calculates and interprets:
-
-- Internal Rate of Return (IRR)
-- Date-aware XIRR and XNPV
-- Net Present Value (NPV)
-- Modified Internal Rate of Return (MIRR)
-- Profitability Index (PI)
-- Traditional and discounted payback periods
-- Cash-flow break-even paths
-- Bear, base, and bull scenarios
-- Two-way IRR and NPV sensitivity tables
-- Monte Carlo return distributions
-- 5th percentile and downside-tail NPV risk metrics
-- Multi-project capital allocation rankings
-
-## Features
-
-### Executive Dashboard
-
-The dashboard presents decision-ready KPI cards, XIRR/XNPV for dated models, an automated investment recommendation, an auditable decision matrix, a cash-flow waterfall, cumulative break-even path, and an NPV profile with the project IRR marked where appropriate.
-
-![Executive Dashboard](screenshots/dashboard.png)
-
-### Cash Flow Builder
-
-Build custom cash-flow models with a dynamic time horizon, edit actual cash-flow dates, upload `.xlsx` or `.csv` files, validate inputs, or load one of five built-in example investments:
-
-- Corporate Expansion Project
-- Manufacturing Plant
-- Acquisition Opportunity
-- Real Estate Development
-- Renewable Energy Project
-
-### NPV Profile
-
-The NPV profile plots project value across discount rates from 0% to 25%. It makes the relationship between discount rate, value creation, and IRR visually explicit.
-
-![NPV Profile](screenshots/npv-profile.png)
-
-### Scenario and Sensitivity Analysis
-
-The terminal compares coherent bear, base, and bull cases and provides two-way heatmaps for:
-
-- IRR sensitivity to revenue and cost changes
-- NPV sensitivity to discount rates and terminal value assumptions
-
-![Scenario Analysis](screenshots/scenario-analysis.png)
-
-### Monte Carlo Risk Analysis
-
-Run 1,000, 5,000, or 10,000 simulations using revenue, cost, and growth uncertainty assumptions. Outputs include:
-
-- Distribution of IRRs
-- Distribution of NPVs
-- Probability of positive NPV
-- Probability that IRR exceeds the hurdle rate
-- Probability-of-exceedance curves
-- 5th percentile NPV and IRR
-- Downside tail average for the worst 5% of NPV outcomes
-- Summary statistics and percentiles
-
-![Monte Carlo Results](screenshots/monte-carlo-results.png)
-
-### Multi-Project Comparison
-
-Build a user-managed project pipeline and rank competing investments using a consistent set of capital budgeting assumptions. The terminal highlights the highest-value opportunity and compares IRR, NPV, MIRR, payback, and profitability index.
-
-![Multi-Project Comparison](screenshots/multi-project-comparison.png)
-
-### Specialized Modes
-
-**Real Estate Mode** evaluates purchase price, rental income, operating expenses, exit value, IRR, NPV, and equity multiple.
-
-**Private Equity Mode** evaluates entry equity, entry debt, exit enterprise value, exit debt, debt paydown, sponsor IRR, and money-on-money returns.
-
-### Professional Exports
-
-The Export Center produces:
-
-- A multi-tab Excel workbook with executive summary, dated and discounted cash flows, decision matrix, recommendation rationale, scenarios, and assumptions
-- A PDF investment committee memo with recommendation, return benchmark chart, assumptions, scenario analysis, and risk analysis
-
-## Example Analysis
-
-The built-in **Corporate Expansion Project** requires an initial investment of `$2.5 million` and produces a five-year series of forecast cash inflows. At a 10% discount rate, the terminal evaluates whether the project creates value, clears the hurdle rate, achieves acceptable payback, and remains attractive under downside operating assumptions.
-
-The automated recommendation engine does not rely on IRR alone. It considers NPV, IRR versus hurdle rate, IRR versus cost of capital, profitability index, discounted payback, and bear-case resilience to produce a transparent **Strong Buy**, **Consider**, or **Reject** conclusion.
-
-## IRR Explained
-
-Internal Rate of Return is the discount rate that sets project NPV equal to zero. IRR is useful because it expresses expected returns as an annualized percentage that can be compared with a hurdle rate or cost of capital.
-
-IRR should not be viewed in isolation. Non-conventional cash flows can produce multiple IRRs, and IRR can mis-rank mutually exclusive projects with different scales or timing. The terminal therefore places IRR beside NPV, MIRR, and payback analysis.
-
-## NPV Explained
-
-Net Present Value is the present value of all project cash flows discounted at the required rate of return. A positive NPV indicates that the project is expected to create value after compensating investors for risk and the time value of money.
-
-NPV is the platform's primary value-creation metric because it measures the absolute dollar value added by an investment.
-
-## MIRR Explained
-
-Modified Internal Rate of Return improves on IRR by using separate assumptions for:
-
-- The financing rate applied to negative cash flows
-- The reinvestment rate applied to positive cash flows
-
-This removes the often unrealistic assumption that interim distributions can be reinvested at the project IRR.
-
-## Monte Carlo Analysis
-
-Deterministic forecasts hide the range of possible outcomes. The Monte Carlo module treats revenue, cost, and growth as uncertain variables and generates a distribution of project returns.
-
-The result is a risk-aware view of the investment: not only the expected NPV or IRR, but also the probability that the project creates value or clears the required hurdle rate.
-
-## Financial Theory
-
-The platform follows several core capital budgeting principles:
-
-1. **Value creation matters more than a headline return.** Positive NPV is the clearest indication that an investment creates economic value.
-2. **Returns must be compared with required returns.** IRR is meaningful only relative to the hurdle rate and cost of capital.
-3. **Liquidity and timing matter.** Payback analysis highlights how quickly capital is recovered.
-4. **Point estimates are incomplete.** Scenario, sensitivity, and Monte Carlo analysis reveal the assumptions and risks behind the base case.
-5. **Capital efficiency matters under constraints.** Profitability Index helps rank projects when available capital is limited.
-
-See [docs/financial_theory.md](docs/financial_theory.md) for additional detail.
-
-## Technology Stack
-
-- Python
-- Streamlit
-- Pandas
-- NumPy
-- Plotly
-- SciPy
-- OpenPyXL
-- fpdf2
-- Pytest
-
 ## Usage
-
-Launch the application:
 
 ```bash
 streamlit run app.py
 ```
 
-Then open the local Streamlit URL shown in the terminal. Use the sidebar to move between the executive dashboard, modeling tools, risk analysis, specialized modes, and export center.
+## Testing
+
+```bash
+pytest
+ruff check .
+black --check .
+```
+
+## Deployment
+
+The app is prepared for Streamlit Community Cloud. Use `app.py` as the entry point. No secrets are required.
 
 ## Repository Structure
 
 ```text
 .
 ├── app.py
-├── calculations/
-│   ├── metrics.py
-│   ├── monte_carlo.py
-│   ├── recommendation.py
-│   ├── scenarios.py
-│   └── specialized.py
-├── data/
-│   └── examples.py
-├── reports/
-│   └── exporters.py
-├── visualizations/
-│   └── charts.py
-├── utils/
-│   └── io.py
-├── tests/
-├── docs/
+├── pyproject.toml
 ├── examples/
+├── notebooks/
 ├── screenshots/
+├── src/irr_terminal/
+├── tests/
 └── .github/workflows/ci.yml
 ```
 
-## Testing and CI
+## Limitations
 
-Run the test suite locally:
-
-```bash
-pytest -q
-```
-
-GitHub Actions installs dependencies, runs the tests, and validates that the application modules compile successfully on every pull request and push to the primary branch.
-
-## Contributing
-
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and pull request expectations. Please report security concerns through the process described in [SECURITY.md](SECURITY.md).
+- Forecast quality depends on the assumptions supplied by the user.
+- Scenario and sensitivity analysis are deterministic and do not replace diligence.
+- The app does not model taxes, debt schedules, or accounting statements.
+- Investment outputs are analytical aids, not financial advice.
 
 ## Future Improvements
 
-- Debt schedules, interest coverage, and leverage covenant analysis
-- Portfolio-level capital allocation optimization
-- Correlated simulation variables and custom probability distributions
-- Authentication and persistent project storage
-- Branded report templates and embedded chart exports
+- Correlated Monte Carlo simulation
+- Debt schedules and leverage metrics
+- Portfolio capital-allocation optimization
+- Persistent project storage
+- Branded investment memo exports
+
+## References
+
+- Brealey, Myers, and Allen, *Principles of Corporate Finance*
+- Berk and DeMarzo, *Corporate Finance*
+- CFA Institute capital-budgeting materials
 
 ## License
 
-This project is released under the MIT License.
+This project is released under the [MIT License](LICENSE).
