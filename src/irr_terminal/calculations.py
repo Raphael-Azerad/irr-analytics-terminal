@@ -6,7 +6,6 @@ from dataclasses import asdict, dataclass
 from typing import Iterable
 
 import numpy as np
-from scipy.optimize import brentq
 
 from .exceptions import CashFlowError
 
@@ -50,6 +49,7 @@ def cash_flow_array(values: Iterable[float]) -> np.ndarray:
 
 
 def npv(rate: float, cash_flows: Iterable[float]) -> float:
+    """Return net present value using period 0 as the undiscounted initial cash flow."""
     flows = cash_flow_array(cash_flows)
     if rate <= -1:
         raise CashFlowError("Discount rate must be greater than -100%.")
@@ -63,7 +63,24 @@ def sign_change_count(cash_flows: Iterable[float]) -> int:
     return int(np.sum(signs[1:] != signs[:-1])) if signs.size else 0
 
 
+def _bisect_root(cash_flows: np.ndarray, left: float, right: float) -> float:
+    """Solve for a zero-NPV discount rate inside a bracket."""
+    left_value = npv(left, cash_flows)
+    for _ in range(100):
+        midpoint = (left + right) / 2
+        midpoint_value = npv(midpoint, cash_flows)
+        if abs(midpoint_value) < 1e-10 or abs(right - left) < 1e-10:
+            return float(midpoint)
+        if left_value * midpoint_value <= 0:
+            right = midpoint
+        else:
+            left = midpoint
+            left_value = midpoint_value
+    return float((left + right) / 2)
+
+
 def find_irr_roots(cash_flows: Iterable[float]) -> tuple[float, ...]:
+    """Find real IRR roots across a wide practical search grid."""
     flows = cash_flow_array(cash_flows)
     if not (np.any(flows < 0) and np.any(flows > 0)):
         return ()
@@ -78,7 +95,7 @@ def find_irr_roots(cash_flows: Iterable[float]) -> tuple[float, ...]:
         if abs(left_value) < 1e-10:
             roots.append(float(left))
         elif left_value * right_value < 0:
-            roots.append(float(brentq(lambda rate: npv(rate, flows), left, right)))
+            roots.append(_bisect_root(flows, float(left), float(right)))
     unique: list[float] = []
     for root in roots:
         if not any(abs(root - existing) < 1e-6 for existing in unique):
@@ -112,6 +129,7 @@ def irr(cash_flows: Iterable[float]) -> float | None:
 def mirr(
     cash_flows: Iterable[float], finance_rate: float, reinvestment_rate: float
 ) -> float | None:
+    """Return modified IRR using explicit finance and reinvestment assumptions."""
     flows = cash_flow_array(cash_flows)
     if finance_rate <= -1 or reinvestment_rate <= -1:
         raise CashFlowError("Finance and reinvestment rates must be greater than -100%.")
@@ -134,6 +152,7 @@ def mirr(
 def payback_period(
     cash_flows: Iterable[float], discount_rate: float | None = None
 ) -> float | None:
+    """Return fractional payback period, or None when cumulative cash flow never recovers."""
     flows = cash_flow_array(cash_flows)
     if discount_rate is not None:
         if discount_rate <= -1:
@@ -150,6 +169,7 @@ def payback_period(
 
 
 def profitability_index(cash_flows: Iterable[float], discount_rate: float) -> float | None:
+    """Return PV of future cash flows divided by the initial outlay."""
     flows = cash_flow_array(cash_flows)
     initial_outlay = abs(min(float(flows[0]), 0.0))
     if initial_outlay == 0:

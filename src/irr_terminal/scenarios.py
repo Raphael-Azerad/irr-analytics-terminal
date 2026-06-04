@@ -27,7 +27,8 @@ DEFAULT_SCENARIOS = (
 
 def apply_scenario(cash_flows: Iterable[float], inflow_factor: float) -> list[float]:
     flows = cash_flow_array(cash_flows).copy()
-    flows[1:][flows[1:] > 0] *= inflow_factor
+    future_positive_flows = (flows > 0) & (pd.Series(range(len(flows))).to_numpy() > 0)
+    flows[future_positive_flows] *= inflow_factor
     return flows.tolist()
 
 
@@ -74,4 +75,6 @@ def scenario_analysis(
 
 def probability_weighted_npv(frame: pd.DataFrame) -> float:
     probabilities = normalize_probabilities(frame["Probability"])
-    return float(sum(probability * value for probability, value in zip(probabilities, frame["NPV"])))
+    return float(
+        sum(probability * value for probability, value in zip(probabilities, frame["NPV"]))
+    )

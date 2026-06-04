@@ -5,7 +5,7 @@ from __future__ import annotations
 from io import BytesIO
 
 import pandas as pd
-from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from .calculations import FinancialMetrics
@@ -34,14 +34,30 @@ def build_excel_workbook(
     discount_rate: float,
     hurdle_rate: float,
 ) -> bytes:
+    """Build a formatted workbook for review or investment-committee discussion."""
     output = BytesIO()
     summary = pd.DataFrame(
         {
-            "Project": [project_name],
-            "Decision Status": [metrics.decision_status],
-            "NPV": [metrics.npv],
-            "IRR": [metrics.irr],
-            "MIRR": [metrics.mirr],
+            "Field": [
+                "Project",
+                "Decision Status",
+                "NPV",
+                "IRR",
+                "MIRR",
+                "Payback Period",
+                "Discounted Payback",
+                "Profitability Index",
+            ],
+            "Value": [
+                project_name,
+                metrics.decision_status,
+                metrics.npv,
+                metrics.irr,
+                metrics.mirr,
+                metrics.payback_period,
+                metrics.discounted_payback_period,
+                metrics.profitability_index,
+            ],
         }
     )
     metrics_frame = pd.DataFrame(
@@ -65,10 +81,12 @@ def build_excel_workbook(
         for worksheet in writer.book.worksheets:
             worksheet.freeze_panes = "A2"
             worksheet.sheet_view.showGridLines = False
+            thin_border = Border(bottom=Side(style="thin", color="1D3048"))
             for cell in worksheet[1]:
                 cell.fill = PatternFill("solid", fgColor="0B1B2B")
                 cell.font = Font(color="FFFFFF", bold=True)
                 cell.alignment = Alignment(horizontal="center")
+                cell.border = thin_border
             for column in worksheet.columns:
                 width = max(len(str(cell.value or "")) for cell in column) + 3
                 worksheet.column_dimensions[get_column_letter(column[0].column)].width = min(
@@ -77,14 +95,24 @@ def build_excel_workbook(
             for row in worksheet.iter_rows(min_row=2):
                 for cell in row:
                     header = worksheet.cell(row=1, column=cell.column).value
-                    if header and any(
+                    metric_name = ""
+                    if worksheet.title in {"Summary", "Metrics"} and cell.column == 2:
+                        metric_name = str(worksheet.cell(row=cell.row, column=1).value or "")
+                    format_key = f"{header or ''} {metric_name}".lower()
+                    cell.alignment = Alignment(vertical="top")
+                    if any(
                         word in str(header).lower()
-                        for word in ["npv", "investment", "cash flow"]
+                        for word in ["npv", "investment", "cash flow", "inflows", "outlay"]
+                    ) or any(
+                        word in format_key
+                        for word in ["npv", "investment", "cash flow", "inflows", "outlay"]
                     ):
                         cell.number_format = '$#,##0'
-                    elif header and any(
-                        word in str(header).lower()
+                    elif any(
+                        word in format_key
                         for word in ["irr", "mirr", "rate", "probability"]
                     ):
                         cell.number_format = "0.00%"
+                    elif any(word in format_key for word in ["payback", "score", "index"]):
+                        cell.number_format = "0.00"
     return output.getvalue()

@@ -10,7 +10,7 @@ from .exceptions import UploadError
 
 
 PERIOD_COLUMNS = {"period", "year", "date"}
-CASH_FLOW_COLUMNS = {"cash_flow", "cashflow", "cf"}
+CASH_FLOW_COLUMNS = {"cash_flow", "cashflow", "cf", "amount", "value"}
 PROJECT_COLUMNS = {"project", "project_name"}
 
 
@@ -19,6 +19,7 @@ def _column_key(value: object) -> str:
 
 
 def normalize_cash_flow_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    """Normalize uploaded or manually edited cash flows into the app's standard schema."""
     if frame.empty:
         raise UploadError("The cash-flow file is empty.")
     normalized = frame.copy()
@@ -27,7 +28,7 @@ def normalize_cash_flow_frame(frame: pd.DataFrame) -> pd.DataFrame:
     period_column = next((c for c in normalized.columns if c in PERIOD_COLUMNS), None)
     project_column = next((c for c in normalized.columns if c in PROJECT_COLUMNS), None)
     if cash_column is None:
-        raise UploadError("Include a Cash Flow, CashFlow, or CF column.")
+        raise UploadError("Include a Cash Flow, CashFlow, CF, Amount, or Value column.")
     values = pd.to_numeric(normalized[cash_column], errors="coerce")
     if values.isna().any():
         raise UploadError("Cash flows must be numeric and cannot contain blank values.")
@@ -36,7 +37,7 @@ def normalize_cash_flow_frame(frame: pd.DataFrame) -> pd.DataFrame:
     result = pd.DataFrame(
         {
             "Project": (
-                normalized[project_column].astype(str)
+                normalized[project_column].fillna("Current Project").astype(str)
                 if project_column
                 else pd.Series(["Current Project"] * len(values))
             ),
