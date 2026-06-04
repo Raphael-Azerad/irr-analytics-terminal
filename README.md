@@ -1,8 +1,26 @@
 # IRR Analytics Terminal
 
+[![CI](https://github.com/Raphael-Azerad/irr-analytics-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/Raphael-Azerad/irr-analytics-terminal/actions/workflows/ci.yml)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/downloads/release/python-3110/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **IRR Analytics Terminal** is a professional capital budgeting and investment decision platform built with Python and Streamlit. It combines a reusable corporate finance calculation engine with an institutional-style interface for evaluating projects, acquisitions, real estate investments, and sponsor returns.
 
 This is not a single-metric IRR calculator. The platform is designed around the way finance professionals actually review capital deployment: value creation, return thresholds, payback, downside cases, sensitivity to assumptions, and the probability of achieving an acceptable outcome.
+
+## Quick Start
+
+```bash
+git clone https://github.com/Raphael-Azerad/irr-analytics-terminal.git
+cd irr-analytics-terminal
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Sample upload files are available in the [`examples/`](examples/) directory.
 
 ## Overview
 
@@ -149,16 +167,6 @@ See [docs/financial_theory.md](docs/financial_theory.md) for additional detail.
 - fpdf2
 - Pytest
 
-## Installation
-
-```bash
-git clone https://github.com/Raphael-Azerad/irr-analytics-terminal.git
-cd irr-analytics-terminal
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
 ## Usage
 
 Launch the application:
@@ -168,8 +176,6 @@ streamlit run app.py
 ```
 
 Then open the local Streamlit URL shown in the terminal. Use the sidebar to move between the executive dashboard, modeling tools, risk analysis, specialized modes, and export center.
-
-Sample upload files are available in the [`examples/`](examples/) directory.
 
 ## Repository Structure
 
@@ -206,6 +212,10 @@ pytest -q
 ```
 
 GitHub Actions installs dependencies, runs the tests, and validates that the application modules compile successfully on every pull request and push to the primary branch.
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and pull request expectations. Please report security concerns through the process described in [SECURITY.md](SECURITY.md).
 
 ## Future Improvements
 
