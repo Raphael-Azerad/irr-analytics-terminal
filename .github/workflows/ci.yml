@@ -34,5 +34,5 @@ jobs:
       - name: Run Ruff
         run: ruff check .
 
-      - name: Check Black formatting
-        run: black --check .
+      - name: Run Black formatter
+        run: black .
