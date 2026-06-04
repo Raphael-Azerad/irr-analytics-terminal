@@ -152,7 +152,7 @@ See [docs/financial_theory.md](docs/financial_theory.md) for additional detail.
 ## Installation
 
 ```bash
-git clone https://github.com/your-username/irr-analytics-terminal.git
+git clone https://github.com/Raphael-Azerad/irr-analytics-terminal.git
 cd irr-analytics-terminal
 python -m venv .venv
 source .venv/bin/activate
