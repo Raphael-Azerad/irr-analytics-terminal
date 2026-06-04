@@ -2,28 +2,28 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from irr_terminal.calculations import calculate_metrics  # noqa: E402
-from irr_terminal.cashflows import discounted_cash_flow_frame, parse_uploaded_file  # noqa: E402
-from irr_terminal.comparison import compare_projects  # noqa: E402
-from irr_terminal.examples import EXAMPLES, example_frame  # noqa: E402
-from irr_terminal.export import build_excel_workbook  # noqa: E402
-from irr_terminal.scenarios import probability_weighted_npv, scenario_analysis  # noqa: E402
-from irr_terminal.sensitivity import npv_profile, sensitivity_table  # noqa: E402
-from irr_terminal.utils import (  # noqa: E402
+from irr_terminal.calculations import calculate_metrics
+from irr_terminal.cashflows import (
+    discounted_cash_flow_frame,
+    normalize_cash_flow_frame,
+    parse_uploaded_file,
+)
+from irr_terminal.comparison import compare_projects
+from irr_terminal.examples import EXAMPLES, example_frame
+from irr_terminal.exceptions import UploadError
+from irr_terminal.export import build_excel_workbook
+from irr_terminal.scenarios import probability_weighted_npv, scenario_analysis
+from irr_terminal.sensitivity import npv_profile, sensitivity_table
+from irr_terminal.utils import (
     format_currency,
     format_multiple,
     format_percent,
     format_years,
 )
-from irr_terminal.visualization import (  # noqa: E402
+from irr_terminal.visualization import (
     cash_flow_timeline,
     cumulative_chart,
     npv_profile_chart,
@@ -67,33 +67,70 @@ def initialize_state() -> None:
     if "cash_flow_frame" not in st.session_state:
         st.session_state.cash_flow_frame = example_frame("Corporate Expansion Project")
     st.session_state.setdefault("project_name", "Corporate Expansion Project")
-    st.session_state.setdefault("discount_rate", 0.10)
-    st.session_state.setdefault("hurdle_rate", 0.10)
+    st.session_state.setdefault("discount_rate_percent", 10.00)
+    st.session_state.setdefault("hurdle_rate_percent", 10.00)
+    st.session_state.setdefault("finance_rate_percent", 10.00)
+    st.session_state.setdefault("reinvestment_rate_percent", 10.00)
 
 
 initialize_state()
 
 st.sidebar.title("IRR Analytics Terminal")
 st.sidebar.caption("Capital budgeting and investment cash-flow analysis")
-st.sidebar.number_input("Discount Rate", 0.0, 1.0, key="discount_rate", step=0.005, format="%.3f")
-st.sidebar.number_input("Hurdle Rate", 0.0, 1.0, key="hurdle_rate", step=0.005, format="%.3f")
-st.sidebar.caption("Rates are decimals. Example: 0.10 = 10%.")
+st.sidebar.number_input(
+    "Discount Rate (%)",
+    min_value=0.0,
+    max_value=100.0,
+    key="discount_rate_percent",
+    step=0.25,
+    format="%.2f",
+    help="Used to discount cash flows for NPV and discounted payback.",
+)
+st.sidebar.number_input(
+    "Hurdle Rate (%)",
+    min_value=0.0,
+    max_value=100.0,
+    key="hurdle_rate_percent",
+    step=0.25,
+    format="%.2f",
+    help="Minimum acceptable return threshold for screening IRR and MIRR.",
+)
+with st.sidebar.expander("MIRR assumptions"):
+    st.number_input(
+        "Finance Rate (%)",
+        min_value=0.0,
+        max_value=100.0,
+        key="finance_rate_percent",
+        step=0.25,
+        format="%.2f",
+        help="Rate used to discount negative interim cash flows in MIRR.",
+    )
+    st.number_input(
+        "Reinvestment Rate (%)",
+        min_value=0.0,
+        max_value=100.0,
+        key="reinvestment_rate_percent",
+        step=0.25,
+        format="%.2f",
+        help="Rate used to compound positive cash flows in MIRR.",
+    )
+st.sidebar.caption("Enter rates as percentages. Example: 10.00 means 10%.")
+
+discount_rate = st.session_state.discount_rate_percent / 100
+hurdle_rate = st.session_state.hurdle_rate_percent / 100
+finance_rate = st.session_state.finance_rate_percent / 100
+reinvestment_rate = st.session_state.reinvestment_rate_percent / 100
 
 frame = st.session_state.cash_flow_frame
 flows = frame["Cash Flow"].astype(float).tolist()
-metrics = calculate_metrics(flows, st.session_state.discount_rate, st.session_state.hurdle_rate)
-cash_flow_analysis = discounted_cash_flow_frame(flows, st.session_state.discount_rate)
+metrics = calculate_metrics(flows, discount_rate, hurdle_rate, finance_rate, reinvestment_rate)
+cash_flow_analysis = discounted_cash_flow_frame(flows, discount_rate)
 profile = npv_profile(flows)
-scenarios = scenario_analysis(flows, st.session_state.discount_rate, st.session_state.hurdle_rate)
+scenarios = scenario_analysis(flows, discount_rate, hurdle_rate)
 growth_rates = [-0.10, -0.05, 0.0, 0.05, 0.10]
-discount_rates = [
-    max(st.session_state.discount_rate + change, 0.0)
-    for change in [-0.04, -0.02, 0.0, 0.02, 0.04]
-]
+discount_rates = [max(discount_rate + change, 0.0) for change in [-0.04, -0.02, 0.0, 0.02, 0.04]]
 sensitivity = sensitivity_table(flows, discount_rates, growth_rates)
-comparison = compare_projects(
-    EXAMPLES, st.session_state.discount_rate, st.session_state.hurdle_rate
-)
+comparison = compare_projects(EXAMPLES, discount_rate, hurdle_rate)
 
 st.title("IRR Analytics Terminal")
 st.caption(
@@ -129,7 +166,7 @@ with tabs[0]:
             metric_card(*card)
     row_two = st.columns(5)
     cards = [
-        ("NPV", format_currency(metrics.npv), f"At {metrics.hurdle_rate:.1%} hurdle"),
+        ("NPV", format_currency(metrics.npv), f"At {discount_rate:.1%} discount rate"),
         ("Payback Period", format_years(metrics.payback_period), "Undiscounted"),
         (
             "Discounted Payback",
@@ -151,11 +188,16 @@ with tabs[0]:
     chart_col, table_col = st.columns([1.5, 1])
     with chart_col:
         st.plotly_chart(cash_flow_timeline(cash_flow_analysis), use_container_width=True)
+        st.caption("Periodic cash flows by year. Negative bars represent investment outlays.")
     with table_col:
         st.dataframe(cash_flow_analysis, use_container_width=True, hide_index=True)
 
 with tabs[1]:
     st.subheader("Cash Flow Builder")
+    st.info(
+        "Year 0 is typically the initial investment and should usually be negative. "
+        "Future periods represent expected cash inflows or outflows."
+    )
     example_name = st.selectbox(
         "Built-in example",
         list(EXAMPLES),
@@ -169,29 +211,51 @@ with tabs[1]:
     if upload is not None:
         try:
             uploaded = parse_uploaded_file(upload.name, upload.getvalue())
+            project_count = uploaded["Project"].nunique()
+            if project_count > 1:
+                selected_project = st.selectbox(
+                    "Uploaded projects",
+                    sorted(uploaded["Project"].unique()),
+                    help="Choose which project to use for the main dashboard.",
+                )
+                uploaded = uploaded.loc[uploaded["Project"] == selected_project].reset_index(
+                    drop=True
+                )
+            st.success("Upload parsed successfully. Review the preview before applying it.")
+            st.dataframe(uploaded, use_container_width=True, hide_index=True)
             if st.button("Use uploaded cash flows"):
                 st.session_state.project_name = str(uploaded["Project"].iloc[0])
                 st.session_state.cash_flow_frame = uploaded
                 st.rerun()
-        except ValueError as exc:
+        except UploadError as exc:
             st.error(str(exc))
     edited = st.data_editor(frame, num_rows="dynamic", use_container_width=True)
     if st.button("Apply manual edits"):
-        edited["Cash Flow"] = pd.to_numeric(edited["Cash Flow"], errors="raise")
-        st.session_state.cash_flow_frame = edited
-        st.rerun()
+        try:
+            normalized = normalize_cash_flow_frame(edited)
+            st.session_state.cash_flow_frame = normalized
+            st.session_state.project_name = str(normalized["Project"].iloc[0])
+            st.rerun()
+        except UploadError as exc:
+            st.error(str(exc))
 
 with tabs[2]:
     st.subheader("IRR / NPV Analysis")
     left, right = st.columns(2)
     with left:
         st.plotly_chart(cumulative_chart(cash_flow_analysis), use_container_width=True)
+        st.caption("Undiscounted cumulative cash flow highlights simple break-even timing.")
     with right:
         st.plotly_chart(
             cumulative_chart(cash_flow_analysis, discounted=True),
             use_container_width=True,
         )
+        st.caption("Discounted cumulative cash flow includes the time value of money.")
     st.plotly_chart(npv_profile_chart(profile, flows), use_container_width=True)
+    st.caption(
+        "The NPV profile shows value creation across discount rates. A valid IRR is the point "
+        "where the line crosses zero."
+    )
     st.info(
         "NPV is usually the stronger measure of absolute value creation. IRR can favor "
         "smaller or faster-paying projects and may be unreliable for non-conventional cash flows."
@@ -199,22 +263,27 @@ with tabs[2]:
 
 with tabs[3]:
     st.subheader("Scenario Analysis")
-    probabilities = st.columns(3)
-    bear = probabilities[0].number_input("Bear Probability", 0.0, 1.0, 0.25, 0.05)
-    base = probabilities[1].number_input("Base Probability", 0.0, 1.0, 0.50, 0.05)
-    bull = probabilities[2].number_input("Bull Probability", 0.0, 1.0, 0.25, 0.05)
-    scenarios = scenario_analysis(
-        flows, st.session_state.discount_rate, st.session_state.hurdle_rate, [bear, base, bull]
+    st.caption(
+        "Bear lowers future positive cash flows by 15% and raises the discount rate by 2%. "
+        "Bull raises future positive cash flows by 15% and lowers the discount rate by 1%."
     )
-    if abs(bear + base + bull - 1.0) > 1e-6:
+    probabilities = st.columns(3)
+    bear_pct = probabilities[0].number_input("Bear Probability (%)", 0.0, 100.0, 25.0, 5.0)
+    base_pct = probabilities[1].number_input("Base Probability (%)", 0.0, 100.0, 50.0, 5.0)
+    bull_pct = probabilities[2].number_input("Bull Probability (%)", 0.0, 100.0, 25.0, 5.0)
+    raw_probabilities = [bear_pct / 100, base_pct / 100, bull_pct / 100]
+    scenarios = scenario_analysis(flows, discount_rate, hurdle_rate, raw_probabilities)
+    if abs(sum(raw_probabilities) - 1.0) > 1e-6:
         st.warning("Probabilities were normalized because they did not sum to 100%.")
     metric_card("Probability-Weighted NPV", format_currency(probability_weighted_npv(scenarios)))
     st.plotly_chart(scenario_chart(scenarios), use_container_width=True)
+    st.caption("Scenario NPVs are probability-weighted after normalizing the probabilities.")
     st.dataframe(scenarios, use_container_width=True, hide_index=True)
 
 with tabs[4]:
     st.subheader("Sensitivity Analysis")
     st.plotly_chart(sensitivity_heatmap(sensitivity), use_container_width=True)
+    st.caption("Cells show NPV under paired discount-rate and cash-flow-growth assumptions.")
     st.dataframe(sensitivity, use_container_width=True)
 
 with tabs[5]:
@@ -222,6 +291,10 @@ with tabs[5]:
     st.info(
         "The ranking is not based on IRR alone. It balances NPV, hurdle-rate performance, "
         "discounted payback, profitability index, and scale of value creation."
+    )
+    st.caption(
+        "IRR can favor smaller or faster-paying projects. This ranking balances return, "
+        "value creation, payback timing, and efficiency."
     )
     st.plotly_chart(ranking_chart(comparison), use_container_width=True)
     st.dataframe(comparison, use_container_width=True, hide_index=True)
@@ -236,8 +309,8 @@ with tabs[6]:
         scenarios,
         sensitivity,
         comparison,
-        st.session_state.discount_rate,
-        st.session_state.hurdle_rate,
+        discount_rate,
+        hurdle_rate,
     )
     st.download_button(
         "Download formatted Excel workbook",

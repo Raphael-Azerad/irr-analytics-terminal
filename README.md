@@ -10,6 +10,8 @@ IRR Analytics Terminal is a Streamlit app for evaluating investment cash flows. 
 
 The project is built for capital-budgeting analysis rather than a single headline return. It puts IRR beside NPV, MIRR, liquidity measures, scenario outcomes, sensitivity tables, and a balanced multi-project ranking.
 
+Inputs are shown in finance-friendly terms: discount rates, hurdle rates, MIRR assumptions, and scenario probabilities are entered as percentages while the calculation engine uses decimal rates internally.
+
 ## Live Demo
 
 Live demo: coming soon.
@@ -45,6 +47,7 @@ The project clears the hurdle rate and creates positive value at the selected di
 - Executive metric dashboard with neutral decision language
 - Manual cash-flow editing and built-in project examples
 - CSV and Excel upload with flexible column names
+- User-friendly percentage inputs with internal decimal conversion
 - IRR, NPV, MIRR, payback, discounted payback, and profitability index
 - Cash-flow timeline and cumulative cash-flow charts
 - NPV profile from 0% to 30%
@@ -56,6 +59,8 @@ The project clears the hurdle rate and creates positive value at the selected di
 ## Methodology
 
 The application treats NPV as the primary measure of absolute value creation and uses IRR as a return benchmark. It identifies non-conventional cash-flow patterns and warns when multiple IRRs may exist.
+
+The IRR engine uses bracketed root search and a local bisection solver, so projects with no valid IRR return a clear status instead of crashing or producing a misleading value.
 
 ## IRR
 
@@ -117,6 +122,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+The requirements file installs the local `irr_terminal` package in editable mode, so the app uses normal package imports instead of path manipulation.
 
 ## Usage
 
