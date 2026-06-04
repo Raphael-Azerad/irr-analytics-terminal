@@ -15,8 +15,6 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: .
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -36,5 +34,5 @@ jobs:
       - name: Run Ruff
         run: ruff check .
 
-      - name: Run Black formatter
-        run: black .
+      - name: Check Black formatting
+        run: black --check .
