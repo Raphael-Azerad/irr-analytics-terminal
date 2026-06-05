@@ -58,13 +58,13 @@ The project clears the hurdle rate and creates positive value at the selected di
 
 ## Methodology
 
-The application treats NPV as the primary measure of absolute value creation and uses IRR as a return benchmark. It identifies non-conventional cash-flow patterns and warns when multiple IRRs may exist.
+The application treats NPV as the primary measure of absolute value creation and uses IRR as a return benchmark. IRR is calculated for cash-flow series that contain both at least one outflow and at least one inflow. If a project has only positive or only negative cash flows, the app returns a clear "No valid IRR" status instead of producing a misleading value.
 
-The IRR engine uses bracketed root search and a local bisection solver, so projects with no valid IRR return a clear status instead of crashing or producing a misleading value.
+The app also warns when cash-flow signs change multiple times, because non-conventional cash flows can produce multiple IRRs.
 
 ## IRR
 
-Internal Rate of Return is the discount rate that sets project NPV equal to zero. A valid IRR can be compared with a hurdle rate, but it does not measure the dollar value created.
+Internal Rate of Return is the discount rate that sets project NPV equal to zero. A valid IRR can be compared with a hurdle rate, but it does not measure the dollar value created. The IRR engine uses bracketed root search and a local bisection solver for normal investment patterns such as a negative Year 0 investment followed by positive expected inflows.
 
 ## NPV
 
@@ -141,7 +141,13 @@ black --check .
 
 ## Deployment
 
-The app is prepared for Streamlit Community Cloud. Use `app.py` as the entry point. No secrets are required.
+The app is prepared for Streamlit Community Cloud. No secrets are required.
+
+1. Open Streamlit Community Cloud.
+2. Create a new app from `Raphael-Azerad/irr-analytics-terminal`.
+3. Select `app.py` as the entry point.
+4. Deploy.
+5. Add the deployed URL to this README.
 
 ## Repository Structure
 
@@ -159,9 +165,17 @@ The app is prepared for Streamlit Community Cloud. Use `app.py` as the entry poi
 
 ## Limitations
 
-- Forecast quality depends on the assumptions supplied by the user.
+- IRR can be misleading for non-conventional cash flows.
+- Multiple IRRs can occur when cash-flow signs change more than once.
+- All-positive or all-negative cash-flow series do not have a meaningful IRR.
+- IRR can favor smaller or faster-paying projects over larger value-creating projects.
+- NPV is usually better for measuring absolute value creation.
+- MIRR helps address some reinvestment-assumption issues but still depends on assumptions.
+- Payback period ignores value created after the payback date.
+- Discounted payback includes the time value of money but still ignores later value.
 - Scenario and sensitivity analysis are deterministic and do not replace diligence.
-- The app does not model taxes, debt schedules, or accounting statements.
+- The app does not model taxes, debt schedules, working capital, depreciation, financing structures, or accounting statements.
+- Outputs depend on user assumptions.
 - Investment outputs are analytical aids, not financial advice.
 
 ## Future Improvements
