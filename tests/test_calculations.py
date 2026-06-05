@@ -13,6 +13,15 @@ from irr_terminal.calculations import (
 )
 
 FLOWS = [-1000, 300, 400, 500]
+CORPORATE_EXPANSION_FLOWS = [
+    -10_000_000,
+    1_800_000,
+    2_200_000,
+    2_600_000,
+    3_000_000,
+    3_400_000,
+    3_800_000,
+]
 
 
 def test_npv_calculation() -> None:
@@ -23,6 +32,11 @@ def test_irr_calculation() -> None:
     result = irr(FLOWS)
     assert result is not None
     assert npv(result, FLOWS) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_irr_for_normal_investment_cash_flows() -> None:
+    result = irr(CORPORATE_EXPANSION_FLOWS)
+    assert result == pytest.approx(0.1496, abs=0.0001)
 
 
 def test_mirr_calculation() -> None:
