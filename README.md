@@ -14,7 +14,7 @@ Inputs are shown in finance-friendly terms: discount rates, hurdle rates, MIRR a
 
 ## Live Demo
 
-Live demo: coming soon.
+Live demo: [irr-analytics-terminal-fsp6r4rpzuq7wxakbqvvva.streamlit.app](https://irr-analytics-terminal-fsp6r4rpzuq7wxakbqvvva.streamlit.app/)
 
 ## Key Findings From Default Example
 
@@ -141,13 +141,14 @@ black --check .
 
 ## Deployment
 
-The app is prepared for Streamlit Community Cloud. No secrets are required.
+The app is deployed on Streamlit Community Cloud. No secrets are required.
+
+To redeploy or fork it:
 
 1. Open Streamlit Community Cloud.
 2. Create a new app from `Raphael-Azerad/irr-analytics-terminal`.
 3. Select `app.py` as the entry point.
 4. Deploy.
-5. Add the deployed URL to this README.
 
 ## Repository Structure
 
