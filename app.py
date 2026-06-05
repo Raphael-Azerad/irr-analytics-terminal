@@ -127,7 +127,9 @@ cash_flow_analysis = discounted_cash_flow_frame(flows, discount_rate)
 profile = npv_profile(flows)
 scenarios = scenario_analysis(flows, discount_rate, hurdle_rate)
 growth_rates = [-0.10, -0.05, 0.0, 0.05, 0.10]
-discount_rates = [max(discount_rate + change, 0.0) for change in [-0.04, -0.02, 0.0, 0.02, 0.04]]
+discount_rates = [
+    max(discount_rate + change, 0.0) for change in [-0.04, -0.02, 0.0, 0.02, 0.04]
+]
 sensitivity = sensitivity_table(flows, discount_rates, growth_rates)
 comparison = compare_projects(EXAMPLES, discount_rate, hurdle_rate)
 
@@ -330,6 +332,9 @@ with tabs[7]:
         **IRR** is the discount rate that sets NPV to zero. It is useful for comparing a
         project's return with a hurdle rate, but it can be misleading when cash-flow signs
         change multiple times, when projects differ in scale, or when timing differs materially.
+        IRR is calculated only when a cash-flow series includes at least one outflow and one
+        inflow. All-positive or all-negative series return a clear **No valid IRR** status.
+        Non-conventional cash flows can produce multiple IRRs, so the app flags those cases.
 
         **NPV** measures absolute value creation at the selected discount rate and is usually
         the preferred decision measure for mutually exclusive projects.
