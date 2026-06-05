@@ -37,10 +37,10 @@ The project clears the hurdle rate and creates positive value at the selected di
 
 ## Screenshots
 
-![Dashboard overview](screenshots/dashboard-overview.png)
+![Dashboard overview](screenshots/dashboard-overview.svg)
 ![NPV profile](screenshots/npv-profile.png)
 ![Scenario analysis](screenshots/scenario-analysis.png)
-![Project comparison](screenshots/project-comparison.png)
+![Project comparison](screenshots/project-comparison.svg)
 
 ## Features
 
