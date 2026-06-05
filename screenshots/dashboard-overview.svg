@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">IRR Analytics Terminal dashboard overview</title>
+  <desc id="desc">Preview of the executive dashboard with KPI cards, cash-flow chart, and financial metrics table.</desc>
+  <rect width="1200" height="675" fill="#08111f"/>
+  <rect x="34" y="34" width="1132" height="607" rx="22" fill="#0b1726" stroke="#1d3048" stroke-width="2"/>
+  <text x="72" y="92" fill="#f3f8fc" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="700">IRR Analytics Terminal</text>
+  <text x="72" y="128" fill="#8fa5bd" font-family="Inter, Arial, sans-serif" font-size="18">Corporate Expansion Project</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="72" y="170" width="198" height="105" rx="12" fill="#101c2c" stroke="#1d3048"/>
+    <text x="94" y="204" fill="#8fa5bd" font-size="13" font-weight="700">INITIAL INVESTMENT</text>
+    <text x="94" y="242" fill="#f3f8fc" font-size="27" font-weight="700">$10.0M</text>
+    <rect x="292" y="170" width="198" height="105" rx="12" fill="#101c2c" stroke="#1d3048"/>
+    <text x="314" y="204" fill="#8fa5bd" font-size="13" font-weight="700">IRR</text>
+    <text x="314" y="242" fill="#28d7e5" font-size="27" font-weight="700">14.96%</text>
+    <rect x="512" y="170" width="198" height="105" rx="12" fill="#101c2c" stroke="#1d3048"/>
+    <text x="534" y="204" fill="#8fa5bd" font-size="13" font-weight="700">NPV</text>
+    <text x="534" y="242" fill="#f3f8fc" font-size="27" font-weight="700">$1.71M</text>
+    <rect x="732" y="170" width="198" height="105" rx="12" fill="#101c2c" stroke="#1d3048"/>
+    <text x="754" y="204" fill="#8fa5bd" font-size="13" font-weight="700">MIRR</text>
+    <text x="754" y="242" fill="#f3f8fc" font-size="27" font-weight="700">12.94%</text>
+    <rect x="952" y="170" width="150" height="105" rx="12" fill="#10291f" stroke="#1f6f55"/>
+    <text x="974" y="204" fill="#8fa5bd" font-size="13" font-weight="700">STATUS</text>
+    <text x="974" y="242" fill="#7ee2b8" font-size="22" font-weight="700">Pass</text>
+  </g>
+  <rect x="72" y="318" width="665" height="250" rx="14" fill="#101c2c" stroke="#1d3048"/>
+  <text x="100" y="356" fill="#f3f8fc" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Cash Flow Timeline</text>
+  <line x1="112" y1="496" x2="700" y2="496" stroke="#617b97" stroke-width="2"/>
+  <rect x="145" y="496" width="48" height="-112" fill="#ef6f6c"/>
+  <rect x="235" y="436" width="48" height="60" fill="#28d7e5"/>
+  <rect x="325" y="424" width="48" height="72" fill="#28d7e5"/>
+  <rect x="415" y="410" width="48" height="86" fill="#28d7e5"/>
+  <rect x="505" y="394" width="48" height="102" fill="#28d7e5"/>
+  <rect x="595" y="378" width="48" height="118" fill="#28d7e5"/>
+  <rect x="755" y="318" width="347" height="250" rx="14" fill="#101c2c" stroke="#1d3048"/>
+  <text x="783" y="356" fill="#f3f8fc" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Metric Summary</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="16">
+    <text x="783" y="405" fill="#8fa5bd">Payback Period</text><text x="1035" y="405" fill="#f3f8fc" text-anchor="end">4.12 years</text>
+    <text x="783" y="447" fill="#8fa5bd">Discounted Payback</text><text x="1035" y="447" fill="#f3f8fc" text-anchor="end">5.20 years</text>
+    <text x="783" y="489" fill="#8fa5bd">Profitability Index</text><text x="1035" y="489" fill="#f3f8fc" text-anchor="end">1.17x</text>
+    <text x="783" y="531" fill="#8fa5bd">Hurdle Rate</text><text x="1035" y="531" fill="#f3f8fc" text-anchor="end">10.00%</text>
+  </g>
+</svg>
